@@ -1,0 +1,421 @@
+// Using Spark Scala
+// Nomor 1
+
+scala> spark.sql("use hr_db")
+res0: org.apache.spark.sql.DataFrame = []
+
+scala> val data1 = spark.sql("""SELECT first_name, count(*) as Frequency, RANK() OVER (ORDER BY count(*) DESC) as Rank 
+     | FROM hr_records WHERE gender = "M" GROUP BY first_name""").orderBy(col("Rank").asc)
+data1: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [first_name: string, Frequency: bigint ... 1 more field]
+
+scala> import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.functions.col
+
+scala> import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.types.StringType
+
+scala> val data2 = data1.withColumn("Frequency", col("Frequency").cast(StringType))
+data2: org.apache.spark.sql.DataFrame = [first_name: string, Frequency: string ... 1 more field]
+
+scala> val data3 = data2.withColumn("Rank", col("Rank").cast(StringType))
+data3: org.apache.spark.sql.DataFrame = [first_name: string, Frequency: string ... 1 more field]
+
+scala> data3.printSchema()
+root
+ |-- first_name: string (nullable = true)
+ |-- Frequency: string (nullable = false)
+ |-- Rank: string (nullable = true)
+
+
+scala> data3.createOrReplaceTempView("data4")
+
+scala> val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) FROM data4")
+data5: org.apache.spark.sql.DataFrame = [concat(first_name, concat(-, concat(Frequency, concat(-, Rank)))): string]
+
+scala> data5.show
++-----------------------------------------------------------------+             
+|concat(first_name, concat(-, concat(Frequency, concat(-, Rank))))|
++-----------------------------------------------------------------+
+|                                                      Fidel-253-1|
+|                                                      Ralph-252-2|
+|                                                       Otis-250-3|
+|                                                   Terrance-250-3|
+|                                                       Otha-249-5|
+|                                                      Lamar-247-6|
+|                                                     Efrain-246-7|
+|                                                     Alvaro-244-8|
+|                                                       Phil-243-9|
+|                                                     Walker-243-9|
+|                                                     Keith-242-11|
+|                                                     Myron-242-11|
+|                                                      Amos-242-11|
+|                                                     Luigi-242-11|
+|                                                  Garfield-241-15|
+|                                                     Frank-240-16|
+|                                                   Geraldo-239-17|
+|                                                  Roderick-239-17|
+|                                                     Roger-238-19|
+|                                                    Darell-238-19|
++-----------------------------------------------------------------+
+only showing top 20 rows                                                             ^
+
+scala> val data6 = data5.withColumnRenamed("concat(first_name, concat(-, concat(Frequency, concat(-, Rank))))", "first_name-Frequency-Rank")
+data6: org.apache.spark.sql.DataFrame = [first_name-Frequency-Rank: string]
+
+scala> data6.show
++-------------------------+                                                     
+|first_name-Frequency-Rank|
++-------------------------+
+|              Fidel-253-1|
+|              Ralph-252-2|
+|               Otis-250-3|
+|           Terrance-250-3|
+|               Otha-249-5|
+|              Lamar-247-6|
+|             Efrain-246-7|
+|             Alvaro-244-8|
+|               Phil-243-9|
+|             Walker-243-9|
+|             Keith-242-11|
+|             Myron-242-11|
+|              Amos-242-11|
+|             Luigi-242-11|
+|          Garfield-241-15|
+|             Frank-240-16|
+|           Geraldo-239-17|
+|          Roderick-239-17|
+|             Roger-238-19|
+|            Darell-238-19|
++-------------------------+
+only showing top 20 rows
+
+
+scala> 
+
+
+spark.read.text("/user/2540128650/solution")
+
+==============================================================================
+Using Scala version 2.11.12 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_251)
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> spark.sql("use hr_db")
+res0: org.apache.spark.sql.DataFrame = []
+
+scala> val data1 = spark.sql("""SELECT first_name, count(*) as Frequency, RANK() OVER (ORDER BY count(*) DESC) as Rank 
+     | FROM hr_records WHERE gender = "M" GROUP BY first_name""").orderBy(col("Rank").asc)
+data1: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [first_name: string, Frequency: bigint ... 1 more field]
+
+scala> import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.functions.col
+
+scala> import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.types.StringType
+
+scala> val data2 = data1.withColumn("Frequency", col("Frequency").cast(StringType))
+data2: org.apache.spark.sql.DataFrame = [first_name: string, Frequency: string ... 1 more field]
+
+scala> val data3 = data2.withColumn("Rank", col("Rank").cast(StringType))
+data3: org.apache.spark.sql.DataFrame = [first_name: string, Frequency: string ... 1 more field]
+
+scala> data3.printSchema()
+root
+ |-- first_name: string (nullable = true)
+ |-- Frequency: string (nullable = false)
+ |-- Rank: string (nullable = true)
+
+
+scala> data3.createOrReplaceTempView("data4")
+
+scala> val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) FROM data4")
+data5: org.apache.spark.sql.DataFrame = [concat(first_name, concat(-, concat(Frequency, concat(-, Rank)))): string]
+
+scala> data5.show
++-----------------------------------------------------------------+             
+|concat(first_name, concat(-, concat(Frequency, concat(-, Rank))))|
++-----------------------------------------------------------------+
+|                                                      Fidel-253-1|
+|                                                      Ralph-252-2|
+|                                                       Otis-250-3|
+|                                                   Terrance-250-3|
+|                                                       Otha-249-5|
+|                                                      Lamar-247-6|
+|                                                     Efrain-246-7|
+|                                                     Alvaro-244-8|
+|                                                       Phil-243-9|
+|                                                     Walker-243-9|
+|                                                     Keith-242-11|
+|                                                     Myron-242-11|
+|                                                      Amos-242-11|
+|                                                     Luigi-242-11|
+|                                                  Garfield-241-15|
+|                                                     Frank-240-16|
+|                                                   Geraldo-239-17|
+|                                                  Roderick-239-17|
+|                                                     Roger-238-19|
+|                                                    Darell-238-19|
++-----------------------------------------------------------------+
+only showing top 20 rows
+
+
+scala> val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as first_name-Frequency-Rank FROM data4")
+org.apache.spark.sql.catalyst.parser.ParseException:
+mismatched input '-' expecting <EOF>(line 1, pos 90)
+
+== SQL ==
+SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as first_name-Frequency-Rank FROM data4
+------------------------------------------------------------------------------------------^^^
+
+  at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:241)
+  at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parse(ParseDriver.scala:117)
+  at org.apache.spark.sql.execution.SparkSqlParser.parse(SparkSqlParser.scala:48)
+  at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parsePlan(ParseDriver.scala:69)
+  at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:642)
+  ... 49 elided
+
+scala> val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as "first_name-Frequency-Rank" FROM data4")
+<console>:25: error: value first_name is not a member of String
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as "first_name-Frequency-Rank" FROM data4")
+                                                                                                               ^
+<console>:25: error: not found: value Frequency
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as "first_name-Frequency-Rank" FROM data4")
+                                                                                                                          ^
+<console>:25: error: value Rank is not a member of StringContext
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as "first_name-Frequency-Rank" FROM data4")
+                                                                                                                                    ^
+
+scala> val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank))) as "first_name-Frequency-Rank") FROM data4")
+<console>:25: error: value first_name is not a member of String
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank))) as "first_name-Frequency-Rank") FROM data4")
+                                                                                                              ^
+<console>:25: error: not found: value Frequency
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank))) as "first_name-Frequency-Rank") FROM data4")
+                                                                                                                         ^
+<console>:25: error: value Rank is not a member of StringContext
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank))) as "first_name-Frequency-Rank") FROM data4")
+                                                                                                                                   ^
+
+scala> val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as "FirstName-Frequency-Rank") FROM data4")
+<console>:25: error: value FirstName is not a member of String
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as "FirstName-Frequency-Rank") FROM data4")
+                                                                                                               ^
+<console>:25: error: not found: value Frequency
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as "FirstName-Frequency-Rank") FROM data4")
+                                                                                                                         ^
+<console>:25: error: value Rank is not a member of StringContext
+       val data5 = spark.sql("SELECT CONCAT(first_name, CONCAT('-', CONCAT(Frequency, CONCAT('-', Rank)))) as "FirstName-Frequency-Rank") FROM data4")
+                                                                                                                                   ^
+
+scala> data5.withColumnRenamed("concat(first_name, concat(-, concat(Frequency, concat(-, Rank))))", "first_name-Frequency-Rank")
+res4: org.apache.spark.sql.DataFrame = [first_name-Frequency-Rank: string]
+
+scala> val data6 = data5.withColumnRenamed("concat(first_name, concat(-, concat(Frequency, concat(-, Rank))))", "first_name-Frequency-Rank")
+data6: org.apache.spark.sql.DataFrame = [first_name-Frequency-Rank: string]
+
+scala> data6.show
++-------------------------+                                                     
+|first_name-Frequency-Rank|
++-------------------------+
+|              Fidel-253-1|
+|              Ralph-252-2|
+|               Otis-250-3|
+|           Terrance-250-3|
+|               Otha-249-5|
+|              Lamar-247-6|
+|             Efrain-246-7|
+|             Alvaro-244-8|
+|               Phil-243-9|
+|             Walker-243-9|
+|             Keith-242-11|
+|             Myron-242-11|
+|              Amos-242-11|
+|             Luigi-242-11|
+|          Garfield-241-15|
+|             Frank-240-16|
+|           Geraldo-239-17|
+|          Roderick-239-17|
+|             Roger-238-19|
+|            Darell-238-19|
++-------------------------+
+only showing top 20 rows
+
+
+scala> data6.write.format("text").option("sep", "-").option("header", "true").mode("overwrite").save("/user/2540128650/solution")
+                                                                                
+scala> :quit
+ verulam-blue  ~  hdfs dfs -ls /user/2540128650/solution 
+Found 2 items
+-rw-r--r--   1 verulam-blue supergroup          0 2023-02-03 15:38 /user/2540128650/solution/_SUCCESS
+-rw-r--r--   1 verulam-blue supergroup      18034 2023-02-03 15:38 /user/2540128650/solution/part-00000-d7b4ff3f-efec-4f59-a8a5-3c51a77f732a-c000.txt
+
+
+// Nomor 2
+
+scala> val data = spark.read.format("parquet").load("/user/verulam_blue/data/emr_data")
+data: org.apache.spark.sql.DataFrame = [extract_date: date, date_of_visit: date ... 4 more fields]
+
+scala> data.show
++------------+-------------+--------+---------------+--------------+------------------+
+|extract_date|date_of_visit|mod_zcta|total_ed_visits|ili_pne_visits|ili_pne_admissions|
++------------+-------------+--------+---------------+--------------+------------------+
+|  2020-07-25|   2020-07-14|   11420|             40|             1|                 1|
+|  2020-07-25|   2020-07-02|   10038|             27|             0|                 0|
+|  2020-07-24|   2020-05-31|   10019|             33|             0|                 0|
+|  2020-07-25|   2020-03-01|   11210|             70|             4|                 1|
+|  2020-07-25|   2020-06-28|   11223|             43|             0|                 0|
+|  2020-07-24|   2020-03-12|   11417|             31|             9|                 1|
+|  2020-07-25|   2020-06-04|   11225|             29|             0|                 0|
+|  2020-07-24|   2020-03-16|   10463|             63|            13|                 4|
+|  2020-07-25|   2020-04-06|   11220|             68|            19|                 6|
+|  2020-07-25|   2020-04-22|   10038|             13|             0|                 0|
+|  2020-07-24|   2020-06-06|   10044|              9|             1|                 1|
+|  2020-07-25|   2020-05-19|   10024|             18|             0|                 0|
+|  2020-07-25|   2020-03-31|   10458|            102|            23|                 8|
+|  2020-07-24|   2020-05-30|   11379|             12|             0|                 0|
+|  2020-07-24|   2020-05-09|   11433|             23|             1|                 1|
+|  2020-07-24|   2020-07-06|   11692|             19|             0|                 0|
+|  2020-07-25|   2020-03-27|   10474|             24|             5|                 2|
+|  2020-07-24|   2020-07-18|   10475|             24|             0|                 0|
+|  2020-07-25|   2020-04-08|   10471|             13|             5|                 1|
+|  2020-07-25|   2020-05-06|   11434|             47|             3|                 3|
++------------+-------------+--------+---------------+--------------+------------------+
+only showing top 20 rows
+
+
+scala> data.createOrReplaceTempView("data1")
+                                                                 
+scala> val data2 = spark.sql("""SELECT MONTH(date_of_visit) as Month_Of_Visit, 
+     | SUM(ili_pne_admissions) as Number_Of_Hospitalization FROM data1 GROUP BY Month_Of_Visit 
+     | HAVING Month_Of_Visit BETWEEN 5 AND 7""").orderBy(col("Month_Of_Visit").asc)
+data2: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [Month_Of_Visit: int, Number_Of_Hospitalization: bigint]
+
+scala> data2.show
++--------------+-------------------------+                                      
+|Month_Of_Visit|Number_Of_Hospitalization|
++--------------+-------------------------+
+|             5|                   200801|
+|             6|                   113289|
+|             7|                   122021|
++--------------+-------------------------+
+
+scala> import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.functions.col
+
+scala> import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.types.StringType
+
+scala> val data3 = data2.withColumn("Month_Of_Visit", col("Month_Of_Visit").cast(StringType))
+data3: org.apache.spark.sql.DataFrame = [Month_Of_Visit: string, Number_Of_Hospitalization: bigint]
+
+scala> val data4 = data2.withColumn("Number_Of_Hospitalization", col("Number_Of_Hospitalization").cast(StringType))
+data4: org.apache.spark.sql.DataFrame = [Month_Of_Visit: int, Number_Of_Hospitalization: string]
+
+scala> val data3 = data2.withColumn("Month_Of_Visit", col("Month_Of_Visit").cast(StringType))
+data3: org.apache.spark.sql.DataFrame = [Month_Of_Visit: string, Number_Of_Hospitalization: bigint]
+
+scala> val data4 = data3.withColumn("Number_Of_Hospitalization", col("Number_Of_Hospitalization").cast(StringType))
+data4: org.apache.spark.sql.DataFrame = [Month_Of_Visit: string, Number_Of_Hospitalization: string]
+
+scala> data4.createOrReplaceTempView("data5")
+
+scala> val data6 = spark.sql("SELECT CONCAT(Month_Of_Visit, CONCAT('     ', Number_Of_Hospitalization)) FROM data5")
+data6: org.apache.spark.sql.DataFrame = [concat(Month_Of_Visit, concat(	, Number_Of_Hospitalization)): string]
+
+scala> data6.show
++------------------------------------------------------------+                  
+|concat(Month_Of_Visit, concat(	, Number_Of_Hospitalization))|
++------------------------------------------------------------+
+|                                                    5	200801|
+|                                                    6	113289|
+|                                                    7	122021|
++------------------------------------------------------------+
+
+// Nomor 3
+
+scala> spark.sql("use gp_db")
+res0: org.apache.spark.sql.DataFrame = []
+
+scala> spark.sql("show tables from gp_db").show()
++--------+--------------------+-----------+
+|database|           tableName|isTemporary|
++--------+--------------------+-----------+
+|   gp_db|          gp_address|      false|
+|   gp_db|               gp_rx|      false|
+|   gp_db|practice_demograp...|      false|
++--------+--------------------+-----------+
+
+
+scala> val data = spark.sql("SELECT * FROM gp_address")
+data: org.apache.spark.sql.DataFrame = [date: string, practice_code: string ... 6 more fields]
+
+scala> val data1 = spark.sql("SELECT * FROM gp_rx")
+data1: org.apache.spark.sql.DataFrame = [sha: string, pct: string ... 8 more fields]
+
+scala> data.show
++------+-------------+--------------------+--------------------+--------------------+----------------+---------+--------+
+|  date|practice_code|        surgery_name|           address_1|           address_2|       address_3|address_4|postcode|
++------+-------------+--------------------+--------------------+--------------------+----------------+---------+--------+
+|201512|       A81001| THE DENSHAM SURGERY|   THE HEALTH CENTRE|       LAWSON STREET|STOCKTON ON TEES|CLEVELAND|TS18 1HU|
+|201512|       A81002|QUEENS PARK MEDIC...|QUEENS PARK MEDIC...|       FARRER STREET|STOCKTON ON TEES|CLEVELAND|TS18 2AW|
+|201512|       A81003|VICTORIA MEDICAL ...|   THE HEALTH CENTRE|       VICTORIA ROAD|      HARTLEPOOL|CLEVELAND|TS26 8DB|
+|201512|       A81004|WOODLANDS ROAD SU...|    6 WOODLANDS ROAD|                    |   MIDDLESBROUGH|CLEVELAND| TS1 3BE|
+|201512|       A81005|  SPRINGWOOD SURGERY|  SPRINGWOOD SURGERY|        RECTORY LANE|     GUISBOROUGH|         |TS14 7DJ|
+|201512|       A81006|TENNANT STREET ME...|TENNANT ST MED PRACT|       FARRER STREET|STOCKTON ON TEES|CLEVELAND|TS18 2AT|
+|201512|       A81007|   BANKHOUSE SURGERY| ONE LIFE HARTLEPOOL|           PARK ROAD|      HARTLEPOOL|CLEVELAND|TS24 7PW|
+|201512|       A81008| ALBERT HOUSE CLINIC|LOW GRANGE HEALTH...|       NORMANBY ROAD|   MIDDLESBROUGH|CLEVELAND| TS6 6TD|
+|201512|       A81009|VILLAGE MEDICAL C...|THE VILLAGE MEDIC...|400/404 LINTHORPE...|   MIDDLESBROUGH|CLEVELAND| TS5 6HF|
+|201512|       A81011|   CHADWICK PRACTICE| ONE LIFE HARTLEPOOL|           PARK ROAD|      HARTLEPOOL|CLEVELAND|TS24 7PW|
+|201512|       A81012|WESTBOURNE MEDICA...|WESTBOURNE MEDICA...|7 TRINITY MEWS N....|   MIDDLESBROUGH|         | TS3 6AL|
+|201512|       A81013|     BROTTON SURGERY|     BROTTON SURGERY| ALFORD ROAD BROTTON| SALTBURN BY SEA|         |TS12 2FF|
+|201512|       A81014| QUEENSTREE PRACTICE|   THE HEALTH CENTRE|           QUEENSWAY|      BILLINGHAM|CLEVELAND|TS23 2LA|
+|201512|       A81015|       LAGAN SURGERY|       LAGAN SURGERY|20 KIRKLEATHAM ST...|          REDCAR|CLEVELAND|TS10 1TZ|
+|201512|       A81016|        PARK SURGERY|PARK SURGERY  ONE...|      LINTHORPE ROAD|   MIDDLESBROUGH|CLEVELAND| TS1 3QY|
+|201512|       A81017| WOODBRIDGE PRACTICE|   THE HEALTH CENTRE|TRENCHARD AVE  TH...|STOCKTON ON TEES|CLEVELAND|TS17 0EE|
+|201512|       A81018|BENTLEY MEDICAL P...|REDCAR PRIMARY CA...|      WEST DYKE ROAD|          REDCAR|CLEVELAND|TS10 4NW|
+|201512|       A81019|CROSSFELL HEALTH ...|      CROSSFELL ROAD|       BERWICK HILLS|   MIDDLESBROUGH|CLEVELAND| TS3 7RL|
+|201512|       A81020|MARTONSIDE MEDICA...|MARTONSIDE MEDICA...|   1A MARTONSIDE WAY|   MIDDLESBROUGH|CLEVELAND| TS4 3BU|
+|201512|       A81021|NORMANBY MEDICAL ...|NORMANBY MEDICAL ...|LOW GRANGE HV NOR...|   MIDDLESBROUGH|CLEVELAND| TS6 6TD|
++------+-------------+--------------------+--------------------+--------------------+----------------+---------+--------+
+only showing top 20 rows
+
+scala> val data2 = spark.sql("""SELECT gp_address.practice_code, surgery_name, SUM(items) AS nbr_prescription
+     | FROM gp_address JOIN gp_rx ON gp_address.practice_code = gp_rx.practice_code
+     | WHERE postcode LIKE 'BL1%' OR postcode LIKE 'BL2%' OR postcode LIKE 'BL3%'
+     | GROUP BY gp_address.practice_code, surgery_name ORDER BY gp_address.practice_code DESC""")
+.orderBy(col(gp_address.practice_code).desc))
+data2: org.apache.spark.sql.DataFrame = [practice_code: string, surgery_name: string ... 1 more field]
+
+scala> val data2 = spark.sql("""SELECT gp_address.practice_code, surgery_name, SUM(items) AS nbr_prescription
+     | FROM gp_address JOIN gp_rx ON gp_address.practice_code = gp_rx.practice_code
+     | WHERE postcode LIKE 'BL1%' OR postcode LIKE 'BL2%' OR postcode LIKE 'BL3%'
+     | GROUP BY gp_address.practice_code, surgery_name""").orderBy(col(gp_address.practice_code).desc))
+data2: org.apache.spark.sql.DataFrame = [practice_code: string, surgery_name: string ... 1 more field]
+
+
+scala> data2.show
++-------------+--------------------+----------------+                           
+|practice_code|        surgery_name|nbr_prescription|
++-------------+--------------------+----------------+
+|       Y04600|       BARDOC GP OOH|            3042|
+|       Y03641|BOLTON COMMUNITY ...|            2267|
+|       Y03366|OLIVE FAMILY PRAC...|            5030|
+|       Y03364|GREAT LEVER PRACTICE|            5619|
+|       Y03079|BOLTON COMMUNITY ...|           22209|
+|       Y02943|NEUROLOGY LONG TE...|              56|
+|       Y02790|BOLTON MEDICAL CE...|            4155|
+|       Y02319|BOLTON GENERAL PR...|            5095|
+|       Y00747|HALLIWELL HEALTH ...|             165|
+|       Y00552|MINOR TREATMENT C...|               1|
+|       Y00448|     DIABETES CENTRE|             150|
+|       Y00233|        THE PARALLEL|               1|
+|       Y00215|ORTHOPAEDIC & RHE...|              70|
+|       Y00208|TIER 2 DERMATOLOG...|               9|
+|       Y00186|   3D MEDICAL CENTRE|            1547|
+|       P82661|   INTERMEDIATE CARE|             470|
+|       P82660|      DEANE CLINIC 1|            6620|
+|       P82654|      BOLTON HOSPICE|              14|
+|       P82640|AL FAL MEDICAL GROUP|            6785|
+|       P82634|WYRESDALE ROAD SU...|            5443|
++-------------+--------------------+----------------+
+only showing top 20 rows

@@ -1,0 +1,108 @@
+// Nomor 1 
+
+import org.apache.spark.sql.types._
+
+val movieSchema = StructType(Array(StructField("Actor", StringType, true), StructField("Title", StringType, true), StructField("Year", IntegerType, true)))
+val moviedata = spark.read.option("header", "false").option("sep", "\t").schema(movieSchema).csv("file:///home/verulam-blue/working/Spark_SQL_Foundation/movies/movies.tsv")
+
+moviedata.createOrReplaceGlobalTempView("movies")
+
+spark.sql("""select Actor, count(*) as Count from(select distinct Actor, Title from global_temp.movies)group by Actor""").orderBy(desc("Count")).show()
+
+
+// Nomor 2
+
+// A. 
+
+import org.apache.spark.sql.types._ 
+
+import org.apache.spark.sql.functions._
+
+val movieSchema = StructType(Array(StructField("Actor_name", StringType, true), StructField("Title_movie", StringType, true), StructField("Year_movie", IntegerType, true)))
+
+val moviedata = spark.read.option("header", "false").option("sep", "\t").schema(movieSchema).csv("file:///home/verulam-blue/working/Spark_SQL_Foundation/movies/movies.tsv")
+
+val ratingSchema = StructType(Array(StructField("Rating", StringType, true), StructField("Title_rating", StringType, true), StructField("Year_rating", IntegerType, true)))
+
+val ratingdata = spark.read.option("header", "false").option("sep", "\t").schema(ratingSchema).csv("file:///home/verulam-blue/working/Spark_SQL_Foundation/movies/movie-ratings.tsv")
+
+val ratingdata1 = ratingdata.withColumn("Rating",col("Rating").cast(FloatType))
+
+ratingdata1.createOrReplaceTempView("movierating")
+
+val moviesRating = spark.sql("""select Title_rating, Year_rating, Rating from 
+     | (select *, row_number() OVER (PARTITION by Year_rating ORDER BY Rating DESC) as row from movierating) tmp where row = 1""").orderBy('Year_rating.asc)
+
+val movieYear = moviedata.groupBy("Title_movie", "Year_movie").agg(concat_ws(";",collect_list("Actor_name")) as "List_Actor")
+
+val data = movieYear.join(moviesRating, movieYear("Title_movie") === moviesRating("Title_rating"),"inner")
+
+val data1 = data.filter(col("Year_movie") === col("Year_rating"))
+
+val data2 = data1.drop("Year_rating", "Title_rating")
+
+data2.orderBy(col("Year_movie").asc).show
+
+
+// B. 
+
+import org.apache.spark.sql.types._
+
+import org.apache.spark.sql.types.FloatType
+
+import org.apache.spark.sql.functions.col
+
+import org.apache.spark.sql.functions._
+
+val ratingSchema = StructType(Array(StructField("Rating", StringType, true), StructField("Title_rating", StringType, true), StructField("Year_rating", IntegerType, true)))
+
+val ratingdata = spark.read.option("header", "false").option("sep", "\t").schema(ratingSchema).csv("file:///home/verulam-blue/working/Spark_SQL_Foundation/movies/movie-ratings.tsv")
+
+val ratingdata1 = ratingdata.withColumn("Rating",col("Rating").cast(FloatType))
+
+val movieSchema = StructType(Array(StructField("Actor_name", StringType, true), StructField("Title_movie", StringType, true), StructField("Year_movie", IntegerType, true)))
+
+val moviedata = spark.read.option("header", "false").option("sep", "\t").schema(movieSchema).csv("file:///home/verulam-blue/working/Spark_SQL_Foundation/movies/movies.tsv")
+
+val data =  moviedata.join(ratingdata, moviedata("Title_movie") === ratingdata1("Title_rating"),"inner")
+
+val data1 = data.drop("Title_rating", "Year_rating")
+
+val data2 = data1.select(data1("Title_movie"), data1("Actor_name"), data1("Year_movie"), data1("Rating")).groupBy("Title_movie", "Rating", "Year_movie").agg(concat_ws(";",collect_list("Actor_name")) as "List_Actor")
+
+data2.createOrReplaceTempView("data3")
+
+spark.sql("""select Year_movie, Title_movie, Rating, List_Actor from
+     | (select *, row_number() OVER (PARTITION by Year_movie ORDER BY Rating DESC) as row
+     | from data3) tmp where row = 1""").orderBy('Year_movie.asc).show()
+
+
+// Nomor 3
+
+import org.apache.spark.sql.types._ 
+
+import org.apache.spark.sql.functions._
+
+val movieSchema = StructType(Array(StructField("Actor_name", StringType, true), StructField("Title_movie", StringType, true), StructField("Year_movie", IntegerType, true)))
+
+val moviedata = spark.read.option("header", "false").option("sep", "\t").schema(movieSchema).csv("file:///home/verulam-blue/working/Spark_SQL_Foundation/movies/movies.tsv")
+
+val movieSchema1 = StructType(Array(StructField("Actor_name1", StringType, true), StructField("Title_movie1", StringType, true), StructField("Year_movie1", IntegerType, true)))
+
+val moviedata1 = spark.read.option("header", "false").option("sep", "\t").schema(movieSchema1).csv("file:///home/verulam-blue/working/Spark_SQL_Foundation/movies/movies.tsv")
+
+val data =  moviedata.join(moviedata1, moviedata("Title_movie") === moviedata1("Title_movie1"),"inner")
+
+data.createOrReplaceGlobalTempView("data1")
+
+spark.sql("select Actor_name as Actor1, Actor_name1 as Actor2, count(*) as Count from global_temp.data1 where Title_movie = Title_movie1 and Actor_name != Actor_name1 group by Actor_name, Actor_name1").orderBy(col("Count").desc).show()
+
+spark.sql("select ruId as UserID, count (*) as NumberOfRatings from data1 where rating = 5.0 group by UserID").orderBy(col("NumberOfRatings").desc).show()
+
+spark.sql("""select title as Title, genres, rating from(select distinct Title from data1) where rating = 5.0 and genres = "Crime" or "Drama" group by Title""").orderBy(desc("Title")).show()
+
+spark.sql("select ruID as UserID, count(*) as Count from data1 ").orderBy(col("Count").desc).show()
+
+spark.sql("""select ruID as UserID, count(*) as Count from(select distinct UserID from data1) group by UserID""").orderBy(desc("Count")).show()
+
+
